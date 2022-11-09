@@ -1,0 +1,13 @@
+{
+  "_id": "tenant:wellness-tenant-1",
+  "name": "Wellness Score Tenant",
+  "rule_configuration_ids": [
+    "wellness-test1"
+  ],
+  "input_schema_ids": [
+    "wellness-test1"    
+  ],
+  "test_suite_ids": [
+    "wellness-test1"
+  ]
+}

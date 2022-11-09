@@ -1,0 +1,12 @@
+**/.DS_Store
+**/.dockerignore
+**/.env
+**/.git
+**/.gitignore
+**/.project
+**/Dockerfile
+**/node_modules
+.nyc_output
+.vscode
+chart
+coverage

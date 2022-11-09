@@ -1,0 +1,756 @@
+{
+  "_id": "rule_configuration:wellness-test1",
+  "tenant_id": "wellness-tenant-1",
+  "input_schema_id": "wellness-test1",
+  "pre_processing": {
+    "natural_sort": {
+      "enabled": true,
+      "targets": [
+        {
+          "name": "diagnoses",
+          "sort_field": "date",
+          "direction": "desc"
+        },
+        {
+          "name": "risks",
+          "sort_field": "date",
+          "direction": "desc"
+        },
+        {
+          "name": "symptoms",
+          "sort_field": "date",
+          "direction": "desc"
+        },
+        {
+          "name": "vital_signs",
+          "sort_field": "date",
+          "direction": "desc"
+        },
+        {
+          "name": "travel",
+          "sort_field": "departureDate",
+          "direction": "desc"
+        },
+        {
+          "name": "wellness_scores",
+          "sort_field": "date",
+          "direction": "desc"
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "identify_high_risk_travel_dates": true,
+    "identify_high_risk_symptom_dates": true
+  },
+  "facts": [
+    {
+      "name": "active_period_for_symptoms_in_millis",
+      "expression": "14 * 24 * 60 * 60 * 1000"
+    },
+    {
+      "name": "active_period_for_high_risk_travel_in_millis",
+      "expression": "14 * 24 * 60 * 60 * 1000"
+    },
+    {
+      "name": "active_period_for_covid_negative_diagnosis_in_millis",
+      "expression": "14 * 24 * 60 * 60 * 1000"
+    },
+    {
+      "name": "required_time_after_covid_positive_diagnosis_in_millis",
+      "expression": "14 * 24 * 60 * 60 * 1000"
+    },
+    {
+      "name": "required_time_between_covid_negative_diagnoses_in_millis",
+      "expression": "1 * 24 * 60 * 60 * 1000"
+    },
+    {
+      "name": "buffer_period_after_covid_negative_diagnosis_in_millis",
+      "expression": "7 * 24 * 60 * 60 * 1000"
+    },
+    {
+      "name": "fever_threshold_for_body_temperature_celsius",
+      "expression": "38"
+    },
+    {
+      "name": "fever_threshold_for_body_temperature_fahrenheit",
+      "expression": "100.4"
+    },
+    {
+      "name": "fevers_observed_from_body_temperature",
+      "selectors": [
+        "$.vital_signs[?(@.source == 'workplace')]"
+      ],
+      "expression": "%s.filter(function(bodyTemperature){ return (bodyTemperature.measurement.unit.code === '[degF]' && bodyTemperature.measurement.value >= fever_threshold_for_body_temperature_fahrenheit) || (bodyTemperature.measurement.unit.code === 'Cel' && bodyTemperature.measurement.value >= fever_threshold_for_body_temperature_celsius)}).map(function(bodyTemperature){ return {  date: bodyTemperature.date, type: {  name: 'fever' },  source: bodyTemperature.source  } })"
+    },
+    {
+      "name": "symptoms",
+      "selectors": [
+        "$.symptoms"
+      ],
+      "expression": "_.reverse(_.sortBy(_.union(%s, fevers_observed_from_body_temperature),['date']))"
+    },
+    {
+      "name": "covid_negative_diagnoses",
+      "selectors": [
+        "$.diagnoses[?(@.result == 'negative' && @.source == 'healthcare-provider')]"
+      ]
+    },
+    {
+      "name": "time_of_second_to_last_covid_negative_diagnosis",
+      "expression": "covid_negative_diagnoses && covid_negative_diagnoses.length > 1 ? new Date(covid_negative_diagnoses[1].date).getTime() : null"
+    },
+    {
+      "name": "time_of_last_covid_negative_diagnosis",
+      "expression": "covid_negative_diagnoses && covid_negative_diagnoses.length > 0 ? new Date(covid_negative_diagnoses[0].date).getTime() : null"
+    },
+    {
+      "name": "time_of_last_symptom",
+      "expression": "symptoms.length > 0 ? new Date(symptoms[0].date).getTime() : null"
+    },
+    {
+      "name": "has_active_symptom",
+      "expression": "time_of_last_symptom && (new Date().getTime() - time_of_last_symptom <=  active_period_for_symptoms_in_millis)"
+    },
+    {
+      "name": "covid_negative_diagnosis_has_expired",
+      "expression": "time_of_last_covid_negative_diagnosis && (new Date().getTime() - time_of_last_covid_negative_diagnosis >  active_period_for_covid_negative_diagnosis_in_millis)"
+    },
+    {
+      "name": "time_of_last_high_risk_symptom",
+      "expression": "highRiskDates = extension.identify_high_risk_symptom_dates(symptoms); highRiskDates.length > 0 ? new Date(highRiskDates[0].date).getTime() : null"
+    },
+    {
+      "name": "time_of_last_virus_exposure",
+      "selectors": [
+        "$.risks[?(@.type== 'virus-exposure')]",
+        "$[0]"
+      ],
+      "expression": "%s && (%s=%s[0]) && %s.date ? new Date(%s.date).getTime() : null"
+    },
+    {
+      "name": "time_of_last_covid_positive_diagnosis_via_self_report",
+      "selectors": [
+        "$.diagnoses[?(@.result == 'positive' && @.source == 'survey')]",
+        "$[0]"
+      ],
+      "expression": "%s && (%s=%s[0]) && %s.date ? new Date(%s.date).getTime() : null"
+    },
+    {
+      "name": "time_of_last_symptom_exposure",
+      "selectors": [
+        "$.risks[?(@.type== 'symptom-exposure')]",
+        "$[0]"
+      ],
+      "expression": "%s && (%s=%s[0]) && %s.date ? new Date(%s.date).getTime() : null"
+    },
+    {
+      "name": "high_risk_travel_via_self_report",
+      "selectors": [
+        "$.travel"
+      ],
+      "expression": "extension.identify_high_risk_travel_dates(%s)"
+    },
+    {
+      "name": "high_risk_travel_via_self_reported_risks",
+      "selectors": [
+        "$.risks[?(@.type== 'high-risk travel' && @.source == 'survey')]"
+      ]
+    },
+    {
+      "name": "risks",
+      "selectors": [
+        "$.risks"
+      ],
+      "expression": "_.reverse(_.sortBy(_.union(%s, high_risk_travel_via_self_reported_risks, high_risk_travel_via_self_report),['date']))"
+    },
+    {
+      "name": "time_of_last_risk",
+      "expression": "risks.length > 0 ? new Date(risks[0].date).getTime() : null"
+    },
+    {
+      "name": "time_of_last_high_risk_travel",
+      "expression": "travel = _.reverse(_.sortBy(_.union(high_risk_travel_via_self_report, high_risk_travel_via_self_reported_risks),['date'])); travel.length > 0 ? new Date(travel[0].date).getTime() : null"
+    },
+    {
+      "name": "has_active_high_risk_travel",
+      "expression": "time_of_last_high_risk_travel && (new Date().getTime() - time_of_last_high_risk_travel <=  active_period_for_high_risk_travel_in_millis)"
+    },
+    {
+      "name": "time_of_last_covid_positive_diagnosis",
+      "selectors": [
+        "$.diagnoses[?(@.result == 'positive' && @.source == 'healthcare-provider')]",
+        "$[0]"
+      ],
+      "expression": "%s && (%s=%s[0]) && %s.date ? new Date(%s.date).getTime() : null"
+    },
+    {
+      "name": "enough_time_between_last_covid_positive_diagnosis_and_subsequent_negative_diagnosis",
+      "expression": "time_of_last_covid_positive_diagnosis && time_of_last_covid_negative_diagnosis ? time_of_last_covid_negative_diagnosis - time_of_last_covid_positive_diagnosis > required_time_after_covid_positive_diagnosis_in_millis : null"
+    },
+    {
+      "name": "no_longer_covid_positive",
+      "expression": "time_of_last_covid_positive_diagnosis && time_of_last_covid_negative_diagnosis && time_of_second_to_last_covid_negative_diagnosis && time_of_last_covid_positive_diagnosis < time_of_last_covid_negative_diagnosis && (time_of_last_covid_positive_diagnosis + required_time_after_covid_positive_diagnosis_in_millis) < time_of_second_to_last_covid_negative_diagnosis && (time_of_last_covid_negative_diagnosis - time_of_second_to_last_covid_negative_diagnosis) >= required_time_between_covid_negative_diagnoses_in_millis"
+    },
+    {
+      "name": "new_risks_since_last_covid_negative_diagnosis",
+      "expression": "time_of_last_covid_negative_diagnosis && time_of_last_risk && time_of_last_risk > (time_of_last_covid_negative_diagnosis + buffer_period_after_covid_negative_diagnosis_in_millis)"
+    },
+    {
+      "name": "new_symptoms_since_last_covid_negative_diagnosis",
+      "expression": "time_of_last_covid_negative_diagnosis && time_of_last_symptom && time_of_last_symptom > (time_of_last_covid_negative_diagnosis + buffer_period_after_covid_negative_diagnosis_in_millis)"
+    },
+    {
+      "name": "new_high_risk_travel_since_last_covid_negative_diagnosis",
+      "expression": "time_of_last_covid_negative_diagnosis && time_of_last_high_risk_travel && time_of_last_high_risk_travel > (time_of_last_covid_negative_diagnosis + buffer_period_after_covid_negative_diagnosis_in_millis)"
+    },
+    {
+      "name": "new_virus_exposure_since_last_covid_negative_diagnosis",
+      "expression": "time_of_last_covid_negative_diagnosis && time_of_last_virus_exposure && time_of_last_virus_exposure > (time_of_last_covid_negative_diagnosis + buffer_period_after_covid_negative_diagnosis_in_millis)"
+    },
+    {
+      "name": "new_high_risk_symptoms_since_last_covid_negative_diagnosis",
+      "expression": "time_of_last_covid_negative_diagnosis && time_of_last_high_risk_symptom && time_of_last_high_risk_symptom > (time_of_last_covid_negative_diagnosis + buffer_period_after_covid_negative_diagnosis_in_millis)"
+    },
+    {
+      "name": "new_symptom_exposure_since_last_covid_negative_diagnosis",
+      "expression": "time_of_last_covid_negative_diagnosis && time_of_last_symptom_exposure && time_of_last_symptom_exposure > time_of_last_covid_negative_diagnosis"
+    },
+    {
+      "name": "new_covid_positive_diagnosis_since_last_covid_negative_diagnosis",
+      "expression": "time_of_last_covid_negative_diagnosis && time_of_last_covid_positive_diagnosis && time_of_last_covid_positive_diagnosis > time_of_last_covid_negative_diagnosis"
+    },
+    {
+      "name": "new_covid_positive_diagnosis_via_self_report_since_last_covid_negative_diagnosis",
+      "expression": "time_of_last_covid_negative_diagnosis && time_of_last_covid_positive_diagnosis_via_self_report && time_of_last_covid_positive_diagnosis_via_self_report > time_of_last_covid_negative_diagnosis"
+    }
+  ],
+  "rules": [
+    {
+      "priority": 5,
+      "name": "score-1",
+      "conditions": {
+        "all": [
+          {
+            "any": [
+              {
+                "fact": "time_of_last_covid_positive_diagnosis",
+                "operator": "equal",
+                "value": null
+              },
+              {
+                "fact": "no_longer_covid_positive",
+                "operator": "equal",
+                "value": true
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "fact": "time_of_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": null
+              },
+              {
+                "fact": "new_covid_positive_diagnosis_via_self_report_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "covid_negative_diagnosis_has_expired",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_symptoms_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_high_risk_travel_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_virus_exposure_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_symptom_exposure_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_risks_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              }
+            ]
+          }
+        ]
+      },
+      "event": {
+        "type": 1
+      }
+    },
+    {
+      "priority": 4,
+      "name": "score-2",
+      "conditions": {
+        "any": [
+          {
+            "all": [
+              {
+                "fact": "time_of_last_covid_negative_diagnosis",
+                "operator": "equal",
+                "value": null
+              },
+              {
+                "fact": "time_of_last_symptom",
+                "operator": "equal",
+                "value": null
+              },
+              {
+                "fact": "time_of_last_covid_positive_diagnosis",
+                "operator": "equal",
+                "value": null
+              },
+              {
+                "fact": "time_of_last_covid_positive_diagnosis_via_self_report",
+                "operator": "equal",
+                "value": null
+              },
+              {
+                "fact": "time_of_last_risk",
+                "operator": "equal",
+                "value": null
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "fact": "time_of_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": null
+              },
+              {
+                "any": [
+                  {
+                    "fact": "time_of_last_covid_positive_diagnosis",
+                    "operator": "equal",
+                    "value": null
+                  },
+                  {
+                    "fact": "no_longer_covid_positive",
+                    "operator": "equal",
+                    "value": null
+                  }
+                ]
+              },
+              {
+                "fact": "new_covid_positive_diagnosis_via_self_report_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_symptoms_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_high_risk_symptoms_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_high_risk_travel_since_last_covid_negative_diagnosis",
+                "operator": "equal",
+                "value": false
+              },
+              {
+                "fact": "new_symptom_exposure_since_last_covid_negative_diagnosis",
+                "operator": "equal",
+                "value": true
+              }
+            ]
+          }
+        ]
+      },
+      "event": {
+        "type": 2
+      }
+    },
+    {
+      "priority": 3,
+      "name": "score-3",
+      "conditions": {
+        "any": [
+          {
+            "all": [
+              {
+                "fact": "time_of_last_covid_negative_diagnosis",
+                "operator": "equal",
+                "value": null
+              },
+              {
+                "fact": "time_of_last_covid_positive_diagnosis",
+                "operator": "equal",
+                "value": null
+              },
+              {
+                "fact": "time_of_last_covid_positive_diagnosis_via_self_report",
+                "operator": "equal",
+                "value": null
+              },
+              {
+                "fact": "time_of_last_virus_exposure",
+                "operator": "equal",
+                "value": null
+              },
+              {
+                "fact": "time_of_last_high_risk_symptom",
+                "operator": "equal",
+                "value": null
+              },
+              {
+                "fact": "time_of_last_symptom_exposure",
+                "operator": "equal",
+                "value": null
+              },
+              {
+                "any": [
+                  {
+                    "all": [
+                      {
+                        "fact": "time_of_last_symptom",
+                        "operator": "notEqual",
+                        "value": null
+                      },
+                      {
+                        "fact": "has_active_symptom",
+                        "operator": "equal",
+                        "value": true
+                      }
+                    ]
+                  },
+                  {
+                    "all": [
+                      {
+                        "fact": "time_of_last_high_risk_travel",
+                        "operator": "notEqual",
+                        "value": null
+                      },
+                      {
+                        "fact": "has_active_high_risk_travel",
+                        "operator": "equal",
+                        "value": true
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "fact": "time_of_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": null
+              },
+              {
+                "any": [
+                  {
+                    "fact": "time_of_last_covid_positive_diagnosis",
+                    "operator": "equal",
+                    "value": null
+                  },
+                  {
+                    "fact": "no_longer_covid_positive",
+                    "operator": "notEqual",
+                    "value": true
+                  },
+                  {
+                    "fact": "new_covid_positive_diagnosis_since_last_covid_negative_diagnosis",
+                    "operator": "notEqual",
+                    "value": true
+                  }
+                ]
+              },
+              {
+                "fact": "new_covid_positive_diagnosis_via_self_report_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_virus_exposure_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_high_risk_symptoms_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_symptom_exposure_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "any": [
+                  {
+                    "fact": "new_symptoms_since_last_covid_negative_diagnosis",
+                    "operator": "equal",
+                    "value": true
+                  },
+                  {
+                    "fact": "new_high_risk_travel_since_last_covid_negative_diagnosis",
+                    "operator": "equal",
+                    "value": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "fact": "time_of_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": null
+              },
+              {
+                "fact": "enough_time_between_last_covid_positive_diagnosis_and_subsequent_negative_diagnosis",
+                "operator": "equal",
+                "value": true
+              },
+              {
+                "fact": "time_of_last_covid_positive_diagnosis",
+                "operator": "notEqual",
+                "value": null
+              },
+              {
+                "fact": "no_longer_covid_positive",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_covid_positive_diagnosis_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_covid_positive_diagnosis_via_self_report_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_virus_exposure_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_high_risk_symptoms_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_symptom_exposure_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_symptoms_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              },
+              {
+                "fact": "new_high_risk_travel_since_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": true
+              }
+            ]
+          }
+        ]
+      },
+      "event": {
+        "type": 3
+      }
+    },
+    {
+      "priority": 2,
+      "name": "score-4",
+      "conditions": {
+        "any": [
+          {
+            "all": [
+              {
+                "any": [
+                  {
+                    "fact": "time_of_last_covid_positive_diagnosis",
+                    "operator": "equal",
+                    "value": null
+                  },
+                  {
+                    "all": [
+                      {
+                        "fact": "time_of_last_covid_positive_diagnosis",
+                        "operator": "notEqual",
+                        "value": null
+                      },
+                      {
+                        "fact": "time_of_last_covid_negative_diagnosis",
+                        "operator": "notEqual",
+                        "value": null
+                      },
+                      {
+                        "fact": "new_covid_positive_diagnosis_since_last_covid_negative_diagnosis",
+                        "operator": "notEqual",
+                        "value": true
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "fact": "time_of_last_covid_negative_diagnosis",
+                "operator": "equal",
+                "value": null
+              },
+              {
+                "any": [
+                  {
+                    "fact": "time_of_last_covid_positive_diagnosis_via_self_report",
+                    "operator": "notEqual",
+                    "value": null
+                  },
+                  {
+                    "fact": "time_of_last_virus_exposure",
+                    "operator": "notEqual",
+                    "value": null
+                  },
+                  {
+                    "fact": "time_of_last_high_risk_symptom",
+                    "operator": "notEqual",
+                    "value": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "any": [
+                  {
+                    "fact": "time_of_last_covid_positive_diagnosis",
+                    "operator": "equal",
+                    "value": null
+                  },
+                  {
+                    "all": [
+                      {
+                        "fact": "time_of_last_covid_positive_diagnosis",
+                        "operator": "notEqual",
+                        "value": null
+                      },
+                      {
+                        "fact": "time_of_last_covid_negative_diagnosis",
+                        "operator": "notEqual",
+                        "value": null
+                      },
+                      {
+                        "fact": "new_covid_positive_diagnosis_since_last_covid_negative_diagnosis",
+                        "operator": "notEqual",
+                        "value": true
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "fact": "time_of_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": null
+              },
+              {
+                "any": [
+                  {
+                    "fact": "new_covid_positive_diagnosis_via_self_report_since_last_covid_negative_diagnosis",
+                    "operator": "equal",
+                    "value": true
+                  },
+                  {
+                    "fact": "new_virus_exposure_since_last_covid_negative_diagnosis",
+                    "operator": "equal",
+                    "value": true
+                  },
+                  {
+                    "fact": "new_high_risk_symptoms_since_last_covid_negative_diagnosis",
+                    "operator": "equal",
+                    "value": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "event": {
+        "type": 4
+      }
+    },
+    {
+      "priority": 1,
+      "name": "score-5",
+      "conditions": {
+        "any": [
+          {
+            "all": [
+              {
+                "fact": "time_of_last_covid_negative_diagnosis",
+                "operator": "equal",
+                "value": null
+              },
+              {
+                "fact": "time_of_last_covid_positive_diagnosis",
+                "operator": "notEqual",
+                "value": null
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "fact": "time_of_last_covid_negative_diagnosis",
+                "operator": "notEqual",
+                "value": null
+              },
+              {
+                "any": [
+                  {
+                    "fact": "enough_time_between_last_covid_positive_diagnosis_and_subsequent_negative_diagnosis",
+                    "operator": "equal",
+                    "value": false
+                  },
+                  {
+                    "fact": "new_covid_positive_diagnosis_since_last_covid_negative_diagnosis",
+                    "operator": "equal",
+                    "value": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "event": {
+        "type": 5
+      }
+    }
+  ]
+}

@@ -1,0 +1,423 @@
+{
+  "_id": "input_schema:wellness-test1",  
+  "tenant_id": "wellness-tenant-1",
+  "data": {
+    "title": "Wellness Score Input Schema",
+    "description": "The schema that comprises the input data for Wellness Score calculation",
+    "version": "1.1.0",
+    "changelog": [
+      {
+        "version": "1.1.0",
+        "date": "2020-08-03",
+        "description": "Added 'workplace' as a permitted value for vital_signs.source"
+      },
+      {
+        "version": "1.0.0",
+        "date": "2020-08-03",
+        "description": "Initial draft"
+      }
+    ],
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {
+      "diagnoses": {
+        "type": "array",
+        "additionalItems": false,
+        "maxItems": 25,
+        "uniqueItems": true,
+        "items": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "format": "date-time",
+                  "minLength": 22,
+                  "maxLength": 24,
+                  "example": "2020-07-20T05:13:40.435Z",
+                  "description": "the time of the diagnosis (UTC)"
+                },
+                "condition": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "display name of the condition. Currently, only covid-19 is supported.",
+                      "enum": [
+                        "covid-19"
+                      ]
+                    },
+                    "code": {
+                      "type": "string",
+                      "description": "formal code of the condition. Currently, only the snomed code for covid-19 is supported",
+                      "enum": [
+                        "840539006"
+                      ]
+                    },
+                    "system": {
+                      "type": "string",
+                      "description": "coding system for the code of the condition",
+                      "enum": [
+                        "http://snomed.info/sct"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ]
+                },
+                "result": {
+                  "type": "string",
+                  "description": "The result of the diagnosis",
+                  "enum": [
+                    "positive",
+                    "negative",
+                    "indeterminate"
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "description": "the source of the diagnosis",
+                  "enum": [
+                    "survey",
+                    "healthcare-provider"
+                  ]
+                }
+              },
+              "required": [
+                "date",
+                "condition",
+                "result",
+                "source"
+              ]
+            }
+          ]
+        }
+      },
+      "risks": {
+        "type": "array",
+        "additionalItems": false,
+        "items": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "format": "date-time",
+                  "minLength": 22,
+                  "maxLength": 24,
+                  "example": "2020-07-20T05:13:40.435Z",
+                  "description": "the most recent time the indiviual was exposed to the risk (UTC)"
+                },
+                "type": {
+                  "type": "string",
+                  "description": "type of risk",
+                  "enum": [
+                    "high-risk travel",
+                    "virus-exposure",
+                    "symptom-exposure"
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "description": "the source of the information",
+                  "enum": [
+                    "survey",
+                    "contact-tracing"
+                  ]
+                }
+              },
+              "required": [
+                "date",
+                "type",
+                "source"
+              ]
+            }
+          ]
+        }
+      },
+      "symptoms": {
+        "type": "array",
+        "additionalItems": false,
+        "items": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "format": "date-time",
+                  "minLength": 22,
+                  "maxLength": 24,
+                  "example": "2020-07-20T05:13:40.435Z",
+                  "description": "the most recent time the individual experienced the symptom (UTC)"
+                },
+                "type": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "display name of the symptom"
+                    },
+                    "code": {
+                      "type": "string",
+                      "description": "formal code of the symptom"
+                    },
+                    "system": {
+                      "type": "string",
+                      "description": "coding system for the code of the symptom"
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "description": "the source of the information",
+                  "enum": [
+                    "survey",
+                    "healthcare-provider"
+                  ]
+                }
+              },
+              "required": [
+                "date",
+                "type",
+                "source"
+              ]
+            }
+          ]
+        }
+      },
+      "vital_signs": {
+        "type": "array",
+        "additionalItems": false,
+        "items": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "format": "date-time",
+                  "minLength": 22,
+                  "maxLength": 24,
+                  "example": "2020-07-20T05:13:40.435Z",
+                  "description": "the time the vital sign was observed (UTC)"
+                },
+                "type": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "display name of the vital sign. Currently, only 'body-temperature' is supported.",
+                      "enum": [
+                        "body-temperature"
+                      ]
+                    },
+                    "code": {
+                      "type": "string",
+                      "description": "formal code of the vital sign. Currently, only the snomed code for body-temperature is supported.",
+                      "enum": [
+                        "386725007"
+                      ]
+                    },
+                    "system": {
+                      "type": "string",
+                      "description": "coding system for the code of the vital sign",
+                      "enum": [
+                        "http://snomed.info/sct"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ]
+                },
+                "measurement": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "value": {
+                      "type": [
+                        "number"
+                      ],
+                      "minimum": 30,
+                      "maximum": 120,
+                      "description": "the observed value of the vital sign. Currently, only 'number' is supported"
+                    },
+                    "unit": {
+                      "type": "object",
+                      "description": "unit of measure",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "name representing the unit"
+                        },
+                        "system": {
+                          "type": "string",
+                          "description": "measurement system. Currently, only 'http://unitsofmeasure.org' is supported",
+                          "enum": [
+                            "http://unitsofmeasure.org"
+                          ]
+                        },
+                        "code": {
+                          "type": "string",
+                          "description": "code representing the unit in the system. Currently, only 'Cel' (degrees Celsius) and '[degF]' (degrees Fahrenheit) are supported.",
+                          "enum": [
+                            "[degF]",
+                            "Cel"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "value",
+                    "unit"
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "description": "the source of the information",
+                  "enum": [
+                    "survey",
+                    "healthcare-provider",
+                    "workplace"
+                  ]
+                }
+              },
+              "required": [
+                "date",
+                "type",
+                "source",
+                "measurement"
+              ]
+            }
+          ]
+        }
+      },
+      "travel": {
+        "type": "array",
+        "additionalItems": false,
+        "items": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "country": {
+                  "type": "string",
+                  "minLength": 2,
+                  "maxLength": 2,
+                  "description": "ISO 3166-2, 2-character country code"
+                },
+                "subdivision": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "minLength": 3,
+                      "description": "subdivision code of the ISO 3166-2 country"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "the name of the subdivision"
+                    },
+                    "category": {
+                      "type": "string",
+                      "description": "the category of the subdivison",
+                      "enum": [
+                        "state",
+                        "province",
+                        "territory"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "category"
+                  ]
+                },
+                "departureDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "minLength": 22,
+                  "maxLength": 24,
+                  "example": "2020-07-20T05:13:40.435Z",
+                  "description": "the date the individual left the location (UTC)"
+                },
+                "source": {
+                  "type": "string",
+                  "description": "the source of the information",
+                  "enum": [
+                    "survey"
+                  ]
+                }
+              },
+              "required": [
+                "country",
+                "departureDate",
+                "source"
+              ]
+            }
+          ]
+        }
+      },
+      "wellness_scores": {
+        "type": "array",
+        "additionalItems": false,
+        "items": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "score": {
+                  "type": "integer",
+                  "description": "numeric value representing the score from the Wellness Score API",
+                  "minimum": 1,
+                  "maximum": 5
+                },
+                "date": {
+                  "type": "string",
+                  "format": "date-time",
+                  "minLength": 22,
+                  "maxLength": 24,
+                  "example": "2020-07-20T05:13:40.435Z",
+                  "description": "the time the score was calculated (UTC)"
+                }
+              },
+              "required": [
+                "score",
+                "date"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "required": [
+      "diagnoses",
+      "risks",
+      "symptoms",
+      "vital_signs",
+      "travel",
+      "wellness_scores"
+    ]
+  }
+}

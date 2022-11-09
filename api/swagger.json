@@ -1,0 +1,1042 @@
+{
+   "openapi": "3.0.0",
+   "info": {
+      "title": "Pilot Wellness Score API",
+      "version": "2.2.0",
+      "description": "\n<h2>Change History:</h2>\n<ul>\n<li><b>2.2.0</b> - 2020-08-29: Updated `RuleConfigurationValidationResponse` to include date field </li>\n<li><b>2.1.0</b> - 2020-08-27: Corrected description of `identify_high_risk_symptom_dates` in `FactResolutionExtension`; added rule configuration operation for testing </li>\n<li><b>2.0.1</b> - 2020-08-24: Corrected typo in scope required to calculate wellness </li>\n<li><b>2.0.0</b> - 2020-08-20: Updated `RuleConfiguration` and `Fact`; update `score` in `WellnessCalculationResponse` </li>\n<li><b>1.0.0</b> - 2020-08-19: Updated security schemes; removed tenant id from header </li>\n<li><b>0.1.1</b> - 2020-07-30: Updated `Error` and `ErrorResponse`; corrected string formats</li>\n<li><b>0.1.0</b> - 2020-07-29: Initial draft</li>\n</ul>\n"
+   },
+   "tags": [
+      {
+         "name": "input schemas",
+         "description": "Input schema management"
+      },
+      {
+         "name": "rule configurations",
+         "description": "Rule configuration management"
+      },
+      {
+         "name": "wellness score",
+         "description": "Wellness score calculation"
+      }
+   ],
+   "paths": {
+      "/calculation": {
+         "post": {
+            "operationId": "calculateWellness",
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "tags": [
+               "wellness score"
+            ],
+            "description": "...",
+            "requestBody": {
+               "content": {
+                  "application/json": {
+                     "schema": {
+                        "$ref": "#/components/schemas/WellnessCalculationRequest"
+                     }
+                  }
+               }
+            },
+            "responses": {
+               "200": {
+                  "description": "...",
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/WellnessCalculationResponse"
+                        }
+                     }
+                  }
+               },
+               "default": {
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "description": "...",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/input_schemas": {
+         "get": {
+            "operationId": "getSchemas",
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "tags": [
+               "input schemas"
+            ],
+            "description": "...",
+            "responses": {
+               "200": {
+                  "description": "...",
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "properties": {
+                              "input_schemas": {
+                                 "type": "array",
+                                 "items": {
+                                    "$ref": "#/components/schemas/InputSchema"
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               "default": {
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "description": "...",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                     }
+                  }
+               }
+            }
+         },
+         "post": {
+            "operationId": "addSchema",
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "tags": [
+               "input schemas"
+            ],
+            "description": "...",
+            "requestBody": {
+               "content": {
+                  "application/json": {
+                     "schema": {
+                        "$ref": "#/components/schemas/InputSchema"
+                     }
+                  }
+               }
+            },
+            "responses": {
+               "201": {
+                  "description": "...",
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/InputSchema"
+                        }
+                     }
+                  }
+               },
+               "default": {
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "description": "...",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/input_schemas/{input_schema_id}": {
+         "get": {
+            "operationId": "getSchema",
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "tags": [
+               "input schemas"
+            ],
+            "description": "...",
+            "parameters": [
+               {
+                  "$ref": "#/components/parameters/inputSchemaIdInPath"
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "...",
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/InputSchema"
+                        }
+                     }
+                  }
+               },
+               "default": {
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "description": "...",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                     }
+                  }
+               }
+            }
+         },
+         "put": {
+            "operationId": "replaceSchema",
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "tags": [
+               "input schemas"
+            ],
+            "description": "...",
+            "parameters": [
+               {
+                  "$ref": "#/components/parameters/inputSchemaIdInPath"
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "...",
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/InputSchema"
+                        }
+                     }
+                  }
+               },
+               "default": {
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "description": "...",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                     }
+                  }
+               }
+            }
+         },
+         "delete": {
+            "operationId": "deleteSchema",
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "tags": [
+               "input schemas"
+            ],
+            "description": "...",
+            "parameters": [
+               {
+                  "$ref": "#/components/parameters/inputSchemaIdInPath"
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "...",
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  }
+               },
+               "default": {
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "description": "...",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/rule_configurations": {
+         "get": {
+            "operationId": "getRuleConfigurations",
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "tags": [
+               "rule configurations"
+            ],
+            "description": "...",
+            "responses": {
+               "200": {
+                  "description": "...",
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "properties": {
+                              "rule_configurations": {
+                                 "type": "array",
+                                 "items": {
+                                    "$ref": "#/components/schemas/RuleConfiguration"
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               "default": {
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "description": "...",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                     }
+                  }
+               }
+            }
+         },
+         "post": {
+            "operationId": "addRuleConfiguration",
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "tags": [
+               "rule configurations"
+            ],
+            "description": "...",
+            "requestBody": {
+               "content": {
+                  "application/json": {
+                     "schema": {
+                        "$ref": "#/components/schemas/RuleConfiguration"
+                     }
+                  }
+               }
+            },
+            "responses": {
+               "201": {
+                  "description": "...",
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/RuleConfiguration"
+                        }
+                     }
+                  }
+               },
+               "default": {
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "description": "...",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/rule_configurations/{rule_configuration_id}": {
+         "get": {
+            "operationId": "getRuleConfiguration",
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "tags": [
+               "rule configurations"
+            ],
+            "description": "...",
+            "parameters": [
+               {
+                  "$ref": "#/components/parameters/ruleConfigurationIdInPath"
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "...",
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/RuleConfiguration"
+                        }
+                     }
+                  }
+               },
+               "default": {
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "description": "...",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                     }
+                  }
+               }
+            }
+         },
+         "put": {
+            "operationId": "replaceRuleConfiguration",
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "tags": [
+               "rule configurations"
+            ],
+            "description": "...",
+            "parameters": [
+               {
+                  "$ref": "#/components/parameters/ruleConfigurationIdInPath"
+               }
+            ],
+            "requestBody": {
+               "content": {
+                  "application/json": {
+                     "schema": {
+                        "$ref": "#/components/schemas/RuleConfiguration"
+                     }
+                  }
+               }
+            },
+            "responses": {
+               "200": {
+                  "description": "...",
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/RuleConfiguration"
+                        }
+                     }
+                  }
+               },
+               "default": {
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "description": "...",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                     }
+                  }
+               }
+            }
+         },
+         "delete": {
+            "operationId": "deleteRuleConfiguration",
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "tags": [
+               "rule configurations"
+            ],
+            "description": "...",
+            "parameters": [
+               {
+                  "$ref": "#/components/parameters/ruleConfigurationIdInPath"
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "...",
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  }
+               },
+               "default": {
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "description": "...",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/rule_configurations/{rule_configuration_id}/validation": {
+         "post": {
+            "operationId": "validateRuleConfiguration",
+            "security": [
+               {
+                  "bearerAuth": []
+               }
+            ],
+            "tags": [
+               "rule configurations"
+            ],
+            "description": "...",
+            "parameters": [
+               {
+                  "$ref": "#/components/parameters/ruleConfigurationIdInPath"
+               },
+               {
+                  "$ref": "#/components/parameters/testSuiteIdInQuery"
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "...",
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/RuleConfigurationValidationResponse"
+                        }
+                     }
+                  }
+               },
+               "default": {
+                  "headers": {
+                     "x-correlation-id": {
+                        "schema": {
+                           "$ref": "#/components/headers/x-correlation-id"
+                        }
+                     }
+                  },
+                  "description": "...",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   },
+   "components": {
+      "securitySchemes": {
+         "bearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT"
+         }
+      },
+      "parameters": {
+         "inputSchemaIdInPath": {
+            "name": "input_schema_id",
+            "in": "path",
+            "required": true,
+            "description": "...",
+            "schema": {
+               "type": "string"
+            }
+         },
+         "ruleConfigurationIdInPath": {
+            "name": "rule_configuration_id",
+            "in": "path",
+            "required": true,
+            "description": "...",
+            "schema": {
+               "type": "string"
+            }
+         },
+         "testSuiteIdInQuery": {
+            "name": "test_suite_id",
+            "in": "query",
+            "required": true,
+            "description": "...",
+            "schema": {
+               "type": "string"
+            }
+         }
+      },
+      "headers": {
+         "x-tenant-id": {
+            "schema": {
+               "type": "string",
+               "description": "..."
+            }
+         },
+         "x-correlation-id": {
+            "schema": {
+               "type": "string",
+               "description": "..."
+            }
+         }
+      },
+      "schemas": {
+         "RuleConfigurationValidationResponse": {
+            "description": "...",
+            "type": "object",
+            "properties": {
+               "date": {
+                  "type": "string",
+                  "description": "..."
+               },
+               "version_info": {
+                  "type": "object",
+                  "properties": {
+                     "rule_configuration": {
+                        "type": "object",
+                        "properties": {
+                           "id": {
+                              "type": "string"
+                           },
+                           "revision": {
+                              "type": "string"
+                           }
+                        },
+                        "description": "..."
+                     },
+                     "input_schema": {
+                        "type": "object",
+                        "properties": {
+                           "id": {
+                              "type": "string"
+                           },
+                           "revision": {
+                              "type": "string"
+                           }
+                        },
+                        "description": "..."
+                     },
+                     "test_suite": {
+                        "type": "object",
+                        "properties": {
+                           "id": {
+                              "type": "string"
+                           },
+                           "revision": {
+                              "type": "string"
+                           }
+                        },
+                        "description": "..."
+                     }
+                  }
+               },
+               "test_cases": {
+                  "type": "array",
+                  "items": {
+                     "type": "object",
+                     "properties": {
+                        "name": {
+                           "type": "string"
+                        },
+                        "passed": {
+                           "type": "boolean"
+                        },
+                        "reason": {
+                           "type": "string"
+                        },
+                        "expected_score": {
+                           "type": "number"
+                        },
+                        "actual_score": {
+                           "type": "number"
+                        },
+                        "input": {
+                           "type": "object"
+                        }
+                     }
+                  }
+               }
+            }
+         },
+         "WellnessCalculationRequest": {
+            "description": "...",
+            "type": "object",
+            "properties": {
+               "rule_configuration_id": {
+                  "type": "string"
+               },
+               "input": {
+                  "type": "object"
+               }
+            }
+         },
+         "WellnessCalculationResponse": {
+            "description": "...",
+            "type": "object",
+            "properties": {
+               "score": {
+                  "type": "integer",
+                  "enum": [
+                     1,
+                     2,
+                     3,
+                     4,
+                     5
+                  ],
+                  "example": 2,
+                  "default": 2
+               },
+               "description": {
+                  "type": "string",
+                  "enum": [
+                     "low risk with high confidence",
+                     "low risk with moderate confidence",
+                     "medium risk",
+                     "high risk with moderate confidence",
+                     "high risk with high confidence"
+                  ],
+                  "example": "low risk with moderate confidence"
+               }
+            }
+         },
+         "ErrorResponse": {
+            "type": "object",
+            "properties": {
+               "message": {
+                  "type": "string"
+               },
+               "trace": {
+                  "type": "string",
+                  "description": "..."
+               },
+               "errors": {
+                  "type": "array",
+                  "description": "...",
+                  "items": {
+                     "$ref": "#/components/schemas/Error"
+                  }
+               }
+            },
+            "required": [
+               "errors"
+            ]
+         },
+         "Error": {
+            "type": "object",
+            "required": [
+               "message"
+            ],
+            "properties": {
+               "errorCode": {
+                  "type": "string",
+                  "description": "..."
+               },
+               "message": {
+                  "type": "string",
+                  "description": "..."
+               },
+               "path": {
+                  "type": "string",
+                  "description": "..."
+               }
+            }
+         },
+         "InputSchema": {
+            "type": "object",
+            "properties": {
+               "id": {
+                  "type": "string",
+                  "description": "..."
+               },
+               "data": {
+                  "type": "object",
+                  "description": "JSON Schema - https://json-schema.org"
+               }
+            },
+            "required": [
+               "data"
+            ]
+         },
+         "NaturalSortPreProcessingTarget": {
+            "type": "object",
+            "properties": {
+               "name": {
+                  "type": "string"
+               },
+               "sort_field": {
+                  "type": "string"
+               },
+               "direction": {
+                  "type": "string",
+                  "enum": [
+                     "asc",
+                     "desc"
+                  ]
+               }
+            },
+            "required": [
+               "name",
+               "sort_field",
+               "direction"
+            ]
+         },
+         "FactResolutionExtension": {
+            "type": "object",
+            "properties": {
+               "identify_high_risk_travel_dates": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "This extension will accept a list of travel objects and return a list of dates, with each date representing a day on which an instance of high-risk travel ended. The date value will represent 11:59:59PM of the day the high-risk travel was detected. Each travel object is expected to contain the following: `$.departureDate`, `$.country` (required), `$.subdivision` (optional), and `$.subdivision.code` (required *only* if `$.subdivision` is specified). Refer to this in Fact expressions using `extension.identify_high_risk_travel_dates(%s)`"
+               },
+               "identify_high_risk_symptom_dates": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "This extension will accept a list of symptom objects and return a list of dates, with each date representing a day on which a high-risk combination of symptoms was present. The date value will represent 11:59:59PM of the day the high-risk combination was detected. Each symptom object is expected to contain the following: `$.date` (required), and `$.type.name` (required).Refer to this in Fact expressions using `extension.identify_high_risk_symptom_dates(%s)`"
+               }
+            }
+         },
+         "RuleConfiguration": {
+            "type": "object",
+            "required": [
+               "input_schema_id",
+               "extensions",
+               "facts",
+               "rules"
+            ],
+            "properties": {
+               "id": {
+                  "type": "string"
+               },
+               "input_schema_id": {
+                  "type": "string"
+               },
+               "pre_processing": {
+                  "$ref": "#/components/schemas/InputPreProcessingConfig"
+               },
+               "extensions": {
+                  "$ref": "#/components/schemas/FactResolutionExtension"
+               },
+               "facts": {
+                  "type": "array",
+                  "items": {
+                     "$ref": "#/components/schemas/Fact"
+                  }
+               },
+               "rules": {
+                  "type": "array",
+                  "description": "the rules MUST be mutually-exclusive",
+                  "items": {
+                     "$ref": "#/components/schemas/Rule"
+                  }
+               }
+            }
+         },
+         "Rule": {
+            "type": "object",
+            "description": "JSON representation of a rule. See https://github.com/CacheControl/json-rules-engine/blob/master/docs/rules.md."
+         },
+         "InputPreProcessingConfig": {
+            "type": "object",
+            "properties": {
+               "natural_sort": {
+                  "type": "object",
+                  "properties": {
+                     "enabled": {
+                        "type": "boolean",
+                        "default": false
+                     },
+                     "targets": {
+                        "type": "array",
+                        "items": {
+                           "$ref": "#/components/schemas/NaturalSortPreProcessingTarget"
+                        }
+                     }
+                  }
+               }
+            }
+         },
+         "Fact": {
+            "type": "object",
+            "description": "...",
+            "required": [
+               "name"
+            ],
+            "properties": {
+               "name": {
+                  "type": "string",
+                  "description": "..."
+               },
+               "description": {
+                  "type": "string",
+                  "description": "..."
+               },
+               "selectors": {
+                  "type": "array",
+                  "items": {
+                     "type": "string",
+                     "description": "JSON Path - https://goessner.net/articles/JsonPath/"
+                  }
+               },
+               "expression": {
+                  "type": "string",
+                  "description": "Javascript expression"
+               }
+            }
+         }
+      }
+   }
+}

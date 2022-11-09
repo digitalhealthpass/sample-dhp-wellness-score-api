@@ -1,0 +1,78 @@
+{
+  "name": "sample-dhp-wellness-score-api",
+  "version": "1.0.0",
+  "description": "...",
+  "private": true,
+  "engines": {
+    "node": "^12.0.0"
+  },
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "check-coverage": "nyc report --check-coverage",
+    "lint": "eslint --ignore-path .gitignore .",
+    "fix": "eslint --ignore-path .gitignore . --fix",
+    "test": "nyc mocha test --recursive --exit"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint && npm run test && npm run check-coverage"
+    }
+  },  
+  "nyc": {
+    "check-coverage": true,
+    "per-file": true,
+    "lines": 0,
+    "statements": 0,
+    "functions": 0,
+    "branches": 0,
+    "exclude": [
+      "test"
+    ],
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ]
+  },
+  "keywords": [
+    "swagger"
+  ],
+  "dependencies": {
+    "@cloudant/cloudant": "^4.3.0",
+    "ajv": "^6.12.4",
+    "atob": "^2.1.2",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "dhp-http-lib": "git+ssh://git@github.com:digitalhealthpass/dhp-http-lib.git",
+    "dhp-logging-lib": "git+ssh://git@github.com:digitalhealthpass/dhp-logging-lib.git",
+    "ibmcloud-appid": "^6.1.1",
+    "json-rules-engine": "^5.0.3",
+    "jsonpath": "^1.0.2",
+    "lodash": "^4.17.20",
+    "node-eval": "^2.0.0",
+    "object.fromentries": "^2.0.2",
+    "passport": "^0.4.1",
+    "rfdc": "^1.1.4",
+    "sacjs": "^1.3.0",
+    "uuid": "^8.3.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb": "^18.1.0",
+    "eslint-config-node": "^4.0.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.19.0",
+    "husky": "^4.2.5",
+    "mocha": "^8.1.1",
+    "nodemon": "^2.0.4",
+    "nyc": "^15.1.0",
+    "sinon": "^9.0.2",
+    "sinon-chai": "^3.5.0",
+    "supertest": "^4.0.2"
+  }
+}
